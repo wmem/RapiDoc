@@ -58,12 +58,12 @@ export default css`
 }
 
 .nav-bar-expand-all {
-  transform: rotate(90deg); 
-  cursor:pointer; 
+  transform: rotate(90deg);
+  cursor:pointer;
   margin-right:10px;
 }
 .nav-bar-collapse-all {
-  transform: rotate(270deg); 
+  transform: rotate(270deg);
   cursor:pointer;
 }
 .nav-bar-expand-all:hover, .nav-bar-collapse-all:hover {
@@ -72,7 +72,7 @@ export default css`
 
 .nav-bar-tag-icon {
   color: var(--nav-text-color);
-  font-size: 20px; 
+  font-size: 20px;
 }
 .nav-bar-tag-icon:hover {
   color:var(--nav-hover-text-color);
@@ -123,7 +123,7 @@ export default css`
   cursor: pointer;
   width: 100%;
   border: none;
-  border-radius:4px; 
+  border-radius:4px;
   color: var(--nav-text-color);
   background: transparent;
   border-left:4px solid transparent;
@@ -194,5 +194,154 @@ export default css`
 .nav-bar-path:hover {
   color:var(--nav-hover-text-color);
   background-color:var(--nav-hover-bg-color);
+}
+
+/* 选中状态的简单视觉效果 */
+.nav-bar-path.active {
+  background: rgba(var(--nav-accent-color-rgb, 0, 123, 255), 0.2) !important;
+  color: var(--nav-accent-color) !important;
+  border-left: 3px solid var(--nav-accent-color) !important;
+  font-weight: 600 !important;
+}
+
+.nav-bar-tag.active {
+  background: rgba(var(--nav-accent-color-rgb, 0, 123, 255), 0.08) !important;
+  border-left: 4px solid var(--nav-accent-color) !important;
+  color: var(--nav-accent-color) !important;
+  font-weight: 600 !important;
+}
+
+/* 层级标签样式 */
+.hierarchical-tag {
+  position: relative;
+}
+
+.hierarchical-tag-header {
+  position: relative;
+  transition: all 0.2s ease;
+  border-radius: 6px;
+  margin: 2px 4px;
+}
+
+.hierarchical-tag-header:hover {
+  background-color: var(--nav-hover-bg-color) !important;
+  transform: translateX(2px);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* 层级连接线 */
+.hierarchical-tag::before {
+  content: '';
+  position: absolute;
+  left: -2px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: linear-gradient(to bottom,
+    transparent 0%,
+    var(--nav-hover-bg-color) 20%,
+    var(--nav-hover-bg-color) 80%,
+    transparent 100%);
+  opacity: 0.6;
+}
+
+/* 根级标签不显示连接线 */
+.nav-scroll > .hierarchical-tag::before {
+  display: none;
+}
+
+/* 子级标签的路径样式 */
+.hierarchical-tag .nav-bar-paths-under-tag {
+  border-radius: 0 0 6px 6px;
+  background: linear-gradient(135deg,
+    rgba(var(--nav-hover-bg-color-rgb, 240, 240, 240), 0.1) 0%,
+    rgba(var(--nav-hover-bg-color-rgb, 240, 240, 240), 0.05) 100%);
+}
+
+/* 层级子元素容器 */
+.hierarchical-children {
+  border-left: 2px solid var(--nav-hover-bg-color);
+  margin-left: 12px;
+  border-radius: 0 0 0 8px;
+  background: linear-gradient(to right,
+    rgba(var(--nav-hover-bg-color-rgb, 240, 240, 240), 0.1) 0%,
+    transparent 20px);
+}
+
+/* 路径项的增强样式 */
+.hierarchical-tag .nav-bar-path {
+  position: relative;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.hierarchical-tag .nav-bar-path:hover {
+  background-color: rgba(var(--primary-color-rgb, 0, 123, 255), 0.1);
+  border-left: 3px solid var(--primary-color);
+  transform: translateX(3px);
+}
+
+/* HTTP方法标签的增强样式 */
+.hierarchical-tag .nav-method {
+  border-radius: 3px;
+  font-weight: bold;
+  text-shadow: 0 1px 1px rgba(0,0,0,0.1);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+/* 文件夹图标的动画 */
+.hierarchical-tag-header span[title] {
+  transition: transform 0.2s ease;
+}
+
+.hierarchical-tag-header:hover span[title] {
+  transform: scale(1.1);
+}
+
+/* 层级指示器的样式优化 */
+.hierarchical-tag .nav-bar-tag span[style*="monospace"] {
+  color: var(--nav-accent-color);
+  font-weight: bold;
+  opacity: 0.8;
+}
+
+/* 子项数量指示器 */
+.hierarchical-tag .nav-bar-tag span[style*="margin-left: auto"] {
+  background: var(--nav-accent-color);
+  color: var(--nav-accent-text-color);
+  border-radius: 10px;
+  padding: 2px 6px;
+  font-size: 10px;
+  font-weight: bold;
+  min-width: 16px;
+  text-align: center;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+  .hierarchical-children {
+    margin-left: 8px;
+  }
+
+  .hierarchical-tag-header {
+    margin: 1px 2px;
+  }
+}
+
+/* 深色主题适配 */
+@media (prefers-color-scheme: dark) {
+  .hierarchical-tag::before {
+    background: linear-gradient(to bottom,
+      transparent 0%,
+      rgba(255,255,255,0.1) 20%,
+      rgba(255,255,255,0.1) 80%,
+      transparent 100%);
+  }
+
+  .hierarchical-children {
+    background: linear-gradient(to right,
+      rgba(255,255,255,0.05) 0%,
+      transparent 20px);
+  }
 }
 `;

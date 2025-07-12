@@ -460,5 +460,78 @@ function groupByTags(openApiSpec, sortEndpointsBy, generateMissingTags = false, 
     }
     tag.firstPathId = tag.paths[0].elementId;
   });
-  return sortTags ? tagsWithSortedPaths.sort((a, b) => a.name.localeCompare(b.name)) : tagsWithSortedPaths;
+
+  // Convert flat tags to hierarchical structure
+  const hierarchicalTags = createHierarchicalTags(tagsWithSortedPaths);
+
+  return sortTags ? hierarchicalTags.sort((a, b) => a.name.localeCompare(b.name)) : hierarchicalTags;
+}
+
+// Helper function to create hierarchical tag structure
+function createHierarchicalTags(flatTags) {
+  const hierarchicalTags = [];
+  const tagMap = new Map();
+
+  // First pass: create all tag nodes
+  flatTags.forEach((tag) => {
+    const tagParts = tag.name.split('/');
+    let currentPath = '';
+
+    tagParts.forEach((part, index) => {
+      const isLastPart = index === tagParts.length - 1;
+      currentPath = currentPath ? `${currentPath}/${part}` : part;
+
+      if (!tagMap.has(currentPath)) {
+        const tagNode = {
+          show: true,
+          elementId: `tag--${currentPath.replace(invalidCharsRegEx, '-')}`,
+          name: currentPath,
+          displayName: part.trim(),
+          fullName: currentPath,
+          description: isLastPart ? tag.description : '',
+          headers: isLastPart ? tag.headers : [],
+          paths: isLastPart ? tag.paths : [],
+          expanded: isLastPart ? tag.expanded : true,
+          children: [],
+          level: index,
+          isLeaf: isLastPart,
+          firstPathId: isLastPart ? tag.firstPathId : undefined,
+        };
+        tagMap.set(currentPath, tagNode);
+      }
+    });
+  });
+
+  // Second pass: 为每个中间节点检查是否有直接对应的原始标签
+  flatTags.forEach((tag) => {
+    const existingNode = tagMap.get(tag.name);
+    if (existingNode) {
+      // 确保原始标签的路径、描述等信息被保留
+      existingNode.paths = tag.paths;
+      existingNode.description = tag.description;
+      existingNode.headers = tag.headers;
+      existingNode.expanded = tag.expanded;
+      existingNode.firstPathId = tag.firstPathId;
+      // 如果有路径或子分组，就不是叶子节点
+      existingNode.isLeaf = (tag.paths && tag.paths.length > 0) || (existingNode.children && existingNode.children.length > 0);
+    }
+  });
+
+  // Third pass: build parent-child relationships
+  tagMap.forEach((tag, tagPath) => {
+    const pathParts = tagPath.split('/');
+    if (pathParts.length === 1) {
+      // Root level tag
+      hierarchicalTags.push(tag);
+    } else {
+      // Child tag - find parent
+      const parentPath = pathParts.slice(0, -1).join('/');
+      const parent = tagMap.get(parentPath);
+      if (parent) {
+        parent.children.push(tag);
+      }
+    }
+  });
+
+  return hierarchicalTags;
 }

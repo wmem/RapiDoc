@@ -10,6 +10,8 @@ import 'prismjs/components/prism-bash';
 import 'prismjs/components/prism-python';
 import 'prismjs/components/prism-http';
 import 'prismjs/components/prism-csharp';
+// import 'prismjs/components/prism-typescript'; // 如果有的话
+// import 'prismjs/components/prism-jsdoc'; // 如果有的话
 
 // Styles
 import FontStyles from '~/styles/font-styles';

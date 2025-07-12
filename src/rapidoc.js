@@ -42,6 +42,8 @@ export default class RapiDoc extends LitElement {
     // to scroll to the proper element without being reverted by observer behavior
     this.isIntersectionObserverActive = false;
     this.intersectionObserver = new IntersectionObserver((entries) => { this.onIntersect(entries); }, intersectionObserverOptions);
+    // 初始化所有分组展开状态
+    this.allGroupsExpanded = true;
   }
 
   static get properties() {
@@ -142,6 +144,7 @@ export default class RapiDoc extends LitElement {
       showAdvancedSearchDialog: { type: Boolean },
       advancedSearchMatches: { type: Object },
       searchVal: { type: String },
+      allGroupsExpanded: { type: Boolean },
     };
   }
 
@@ -181,9 +184,9 @@ export default class RapiDoc extends LitElement {
         width:100%;
         overflow:hidden;
       }
-      .main-content { 
+      .main-content {
         margin:0;
-        padding: 0; 
+        padding: 0;
         display:block;
         flex:1;
         height:100%;
@@ -212,8 +215,8 @@ export default class RapiDoc extends LitElement {
       }
       .section-gap,
       .section-gap--focused-mode,
-      .section-gap--read-mode { 
-        padding: 0px 4px; 
+      .section-gap--read-mode {
+        padding: 0px 4px;
       }
       .section-tag-header {
         position:relative;
@@ -234,7 +237,7 @@ export default class RapiDoc extends LitElement {
         font-size:20px;
         top: calc(50% - 14px);
         color:var(--primary-color);
-        content: '⬆'; 
+        content: '⬆';
       }
 
       .collapsed .section-tag-header::after {
@@ -243,7 +246,7 @@ export default class RapiDoc extends LitElement {
         font-size:20px;
         top: calc(50% - 14px);
         color: var(--border-color);
-        content: '⬇'; 
+        content: '⬇';
       }
       .collapsed .section-tag-header:hover::after {
         color:var(--primary-color);
@@ -256,7 +259,7 @@ export default class RapiDoc extends LitElement {
       .logo {
         height:36px;
         width:36px;
-        margin-left:5px; 
+        margin-left:5px;
       }
       .only-large-screen-flex,
       .only-large-screen {
@@ -271,14 +274,14 @@ export default class RapiDoc extends LitElement {
         width:100%;
       }
       .header-title {
-        font-size:calc(var(--font-size-regular) + 8px); 
+        font-size:calc(var(--font-size-regular) + 8px);
         padding:0 8px;
       }
       input.header-input{
         background:var(--header-color-darker);
         color:var(--header-fg);
         border:1px solid var(--header-color-border);
-        flex:1; 
+        flex:1;
         padding-right:24px;
         border-radius:3px;
       }
@@ -286,7 +289,7 @@ export default class RapiDoc extends LitElement {
         opacity:0.4;
       }
       .loader {
-        margin: 16px auto 16px auto; 
+        margin: 16px auto 16px auto;
         border: 4px solid var(--bg3);
         border-radius: 50%;
         border-top: 4px solid var(--primary-color);
@@ -294,9 +297,9 @@ export default class RapiDoc extends LitElement {
         height: 36px;
         animation: spin 2s linear infinite;
       }
-      .expanded-endpoint-body { 
+      .expanded-endpoint-body {
         position: relative;
-        padding: 6px 0px; 
+        padding: 6px 0px;
       }
       .expanded-endpoint-body .tag-description {
         background: var(--code-bg);
@@ -309,7 +312,7 @@ export default class RapiDoc extends LitElement {
       .expanded-endpoint-body .tag-icon.expanded {
         transform: rotate(180deg);
       }
-      .divider { 
+      .divider {
         border-top: 2px solid var(--border-color);
         margin: 24px 0;
         width:100%;
@@ -360,7 +363,7 @@ export default class RapiDoc extends LitElement {
       .nav-method.as-colored-text.post { color:var(--nav-post-color); }
       .nav-method.as-colored-text.delete { color:var(--nav-delete-color); }
       .nav-method.as-colored-text.head, .nav-method.as-colored-text.patch, .nav-method.as-colored-text.options { color:var(--nav-head-color); }
-      
+
       .nav-method.as-colored-block {
         padding: 1px 4px;
         min-width: 30px;
@@ -375,8 +378,8 @@ export default class RapiDoc extends LitElement {
       .nav-method.as-colored-block.put { background-color: var(--orange); }
       .nav-method.as-colored-block.post { background-color: var(--green); }
       .nav-method.as-colored-block.delete { background-color: var(--red); }
-      .nav-method.as-colored-block.head, .nav-method.as-colored-block.patch , .nav-method.as-colored-block.options { 
-        background-color: var(--yellow); 
+      .nav-method.as-colored-block.head, .nav-method.as-colored-block.patch , .nav-method.as-colored-block.options {
+        background-color: var(--yellow);
       }
 
       @container (min-width: 768px) {
@@ -390,14 +393,14 @@ export default class RapiDoc extends LitElement {
         .only-large-screen-flex {
           display:flex;
         }
-        .section-gap { 
-          padding: 0 0 0 24px; 
+        .section-gap {
+          padding: 0 0 0 24px;
         }
         .section-gap--focused-mode {
-          padding: 24px 8px; 
+          padding: 24px 8px;
         }
-        .section-gap--read-mode { 
-          padding: 24px 8px; 
+        .section-gap--read-mode {
+          padding: 24px 8px;
         }
         .endpoint-body {
           position: relative;
@@ -410,11 +413,11 @@ export default class RapiDoc extends LitElement {
           width: ${unsafeCSS(this.fontSize === 'default' ? '300px' : this.fontSize === 'large' ? '315px' : '330px')};
           display:flex;
         }
-        .section-gap--focused-mode { 
-          padding: 12px 80px 12px 80px; 
+        .section-gap--focused-mode {
+          padding: 12px 80px 12px 80px;
         }
-        .section-gap--read-mode { 
-          padding: 24px 80px 12px 80px; 
+        .section-gap--read-mode {
+          padding: 24px 80px 12px 80px;
         }
       }`,
       CustomStyles,
@@ -710,6 +713,55 @@ export default class RapiDoc extends LitElement {
     }));
   }
 
+  // 切换所有分组的展开/折叠状态
+  toggleAllGroups(event) {
+    if (!(event.type === 'click' || (event.type === 'keyup' && event.keyCode === 13))) {
+      return;
+    }
+
+    event.stopPropagation();
+
+    // 切换状态
+    this.allGroupsExpanded = !this.allGroupsExpanded;
+
+    // 获取所有分组元素
+    const navEl = this.shadowRoot.querySelector('.nav-scroll');
+    if (!navEl) return;
+
+    const allTagElements = [...navEl.querySelectorAll('.nav-bar-tag-and-paths')];
+
+    allTagElements.forEach((tagEl) => {
+      const unifiedContainer = tagEl.querySelector('.unified-content-container');
+
+      if (this.allGroupsExpanded) {
+        // 展开所有分组
+        tagEl.classList.remove('collapsed');
+        tagEl.classList.add('expanded');
+        if (unifiedContainer) {
+          unifiedContainer.style.maxHeight = 'none';
+          unifiedContainer.style.overflow = 'visible';
+          // 对于选中的分组，使用!important确保样式生效
+          unifiedContainer.style.setProperty('max-height', 'none', 'important');
+          unifiedContainer.style.setProperty('overflow', 'visible', 'important');
+        }
+      } else {
+        // 折叠所有分组
+        tagEl.classList.remove('expanded');
+        tagEl.classList.add('collapsed');
+        if (unifiedContainer) {
+          unifiedContainer.style.maxHeight = '0';
+          unifiedContainer.style.overflow = 'hidden';
+          // 对于选中的分组，使用!important确保样式生效
+          unifiedContainer.style.setProperty('max-height', '0', 'important');
+          unifiedContainer.style.setProperty('overflow', 'hidden', 'important');
+        }
+      }
+    });
+
+    // 更新UI
+    this.requestUpdate();
+  }
+
   onShowSearchModalClicked() {
     this.showAdvancedSearchDialog = true;
   }
@@ -860,16 +912,34 @@ export default class RapiDoc extends LitElement {
     if (tmpElementId.startsWith('overview') || tmpElementId === 'servers' || tmpElementId === 'auth') {
       isExpandingNeeded = false;
     } else {
+      // 首先在扁平列表中搜索路径
+      let foundPath = null;
+      let foundTag = null;
       for (let i = 0; i < this.resolvedSpec.tags?.length; i++) {
         const tag = this.resolvedSpec.tags[i];
         const path = tag.paths?.find((p) => p.elementId === elementId);
         if (path) {
-          if (path.expanded && tag.expanded) {
-            isExpandingNeeded = false;
-          } else {
-            path.expanded = true;
-            tag.expanded = true;
-          }
+          foundPath = path;
+          foundTag = tag;
+          break;
+        }
+      }
+
+      // 如果没找到，在层级分组中递归搜索路径
+      if (!foundPath) {
+        const hierarchicalResult = this.findPathRecursively(this.resolvedSpec.tags || [], elementId);
+        if (hierarchicalResult) {
+          foundPath = hierarchicalResult.path;
+          foundTag = hierarchicalResult.tag;
+        }
+      }
+
+      if (foundPath && foundTag) {
+        if (foundPath.expanded && foundTag.expanded) {
+          isExpandingNeeded = false;
+        } else {
+          foundPath.expanded = true;
+          foundTag.expanded = true;
         }
       }
     }
@@ -894,6 +964,43 @@ export default class RapiDoc extends LitElement {
     return (id.startsWith('overview') || id === 'servers' || id === 'auth');
   }
 
+  // 递归搜索层级分组的辅助函数
+  findTagRecursively(tags, elementId) {
+    for (const tag of tags) {
+      if (tag.elementId === elementId) {
+        return tag;
+      }
+      if (tag.children && tag.children.length > 0) {
+        const found = this.findTagRecursively(tag.children, elementId);
+        if (found) {
+          return found;
+        }
+      }
+    }
+    return null;
+  }
+
+  // 递归搜索层级分组中的路径
+  findPathRecursively(tags, pathElementId) {
+    for (const tag of tags) {
+      // 搜索当前标签的路径
+      if (tag.paths && tag.paths.length > 0) {
+        const foundPath = tag.paths.find((path) => path.elementId === pathElementId);
+        if (foundPath) {
+          return { path: foundPath, tag };
+        }
+      }
+      // 递归搜索子分组
+      if (tag.children && tag.children.length > 0) {
+        const found = this.findPathRecursively(tag.children, pathElementId);
+        if (found) {
+          return found;
+        }
+      }
+    }
+    return null;
+  }
+
   isValidPathId(id) {
     if (id === 'overview' && this.showInfo) {
       return true;
@@ -905,9 +1012,22 @@ export default class RapiDoc extends LitElement {
       return true;
     }
     if (id.startsWith('tag--')) {
-      return this.resolvedSpec?.tags?.find((tag) => tag.elementId === id);
+      // 首先在扁平列表中搜索
+      const flatTag = this.resolvedSpec?.tags?.find((tag) => tag.elementId === id);
+      if (flatTag) {
+        return flatTag;
+      }
+      // 如果没找到，在层级分组中递归搜索
+      return this.findTagRecursively(this.resolvedSpec?.tags || [], id);
     }
-    return this.resolvedSpec?.tags?.find((tag) => tag.paths.find((path) => path.elementId === id));
+    // 首先在扁平列表中搜索路径
+    const flatResult = this.resolvedSpec?.tags?.find((tag) => tag.paths.find((path) => path.elementId === id));
+    if (flatResult) {
+      return flatResult;
+    }
+    // 如果没找到，在层级分组中递归搜索路径
+    const hierarchicalResult = this.findPathRecursively(this.resolvedSpec?.tags || [], id);
+    return hierarchicalResult ? hierarchicalResult.tag : null;
   }
 
   onIntersect(entries) {

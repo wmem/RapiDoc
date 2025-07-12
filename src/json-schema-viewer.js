@@ -11,7 +11,7 @@ import 'prismjs/components/prism-python';
 import 'prismjs/components/prism-http';
 import 'prismjs/components/prism-csharp';
 import 'prismjs/components/prism-typescript';
-import 'prismjs/components/prism-jsdoc';
+// import 'prismjs/components/prism-jsdoc'; // 临时注释掉，避免错误
 
 // Styles
 import FontStyles from '~/styles/font-styles';
@@ -114,9 +114,9 @@ export default class JsonSchemaViewer extends LitElement {
         display:flex;
       }
 
-      .main-content { 
+      .main-content {
         margin:0;
-        padding: 16px; 
+        padding: 16px;
         display:block;
         flex:1;
         height:100%;
@@ -144,14 +144,14 @@ export default class JsonSchemaViewer extends LitElement {
         width:100%;
       }
       .header-title {
-        font-size:calc(var(--font-size-regular) + 8px); 
+        font-size:calc(var(--font-size-regular) + 8px);
         padding:0 8px;
       }
       input.header-input{
         background:var(--header-color-darker);
         color:var(--header-fg);
         border:1px solid var(--header-color-border);
-        flex:1; 
+        flex:1;
         padding-right:24px;
         border-radius:3px;
       }
@@ -159,7 +159,7 @@ export default class JsonSchemaViewer extends LitElement {
         opacity:0.4;
       }
       .loader {
-        margin: 16px auto 16px auto; 
+        margin: 16px auto 16px auto;
         border: 4px solid var(--bg3);
         border-radius: 50%;
         border-top: 4px solid var(--primary-color);

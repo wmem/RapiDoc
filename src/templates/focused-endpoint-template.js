@@ -78,13 +78,46 @@ export default function focusedEndpointTemplate() {
     focusedTemplate = componentsTemplate.call(this);
   } else if (focusElId.startsWith('tag--')) {
     const idToFocus = focusElId.indexOf('--', 4) > 0 ? focusElId.substring(0, focusElId.indexOf('--', 5)) : focusElId;
+    // 首先在扁平列表中搜索
     selectedTagObj = this.resolvedSpec.tags.find((v) => v.elementId === idToFocus);
+    // 如果没找到，在层级分组中递归搜索
+    if (!selectedTagObj) {
+      selectedTagObj = this.findTagRecursively(this.resolvedSpec.tags || [], idToFocus);
+    }
     if (selectedTagObj) {
-      focusedTemplate = wrapFocusedTemplate.call(this, focusedTagBodyTemplate.call(this, selectedTagObj));
+      // 如果是子分组且没有直接路径，则显示第一个子路径
+      if (selectedTagObj.children && selectedTagObj.children.length > 0 && (!selectedTagObj.paths || selectedTagObj.paths.length === 0)) {
+        // 递归查找第一个有路径的子分组
+        const findFirstPathInChildren = (tag) => {
+          if (tag.paths && tag.paths.length > 0) {
+            return tag.paths[0];
+          }
+          if (tag.children && tag.children.length > 0) {
+            for (const child of tag.children) {
+              const found = findFirstPathInChildren(child);
+              if (found) return found;
+            }
+          }
+          return null;
+        };
+
+        const firstPath = findFirstPathInChildren(selectedTagObj);
+        if (firstPath) {
+          focusedTemplate = wrapFocusedTemplate.call(
+            this,
+            expandedEndpointBodyTemplate.call(this, firstPath, selectedTagObj.displayName || selectedTagObj.name, selectedTagObj.description || ''),
+          );
+        } else {
+          focusedTemplate = wrapFocusedTemplate.call(this, focusedTagBodyTemplate.call(this, selectedTagObj));
+        }
+      } else {
+        focusedTemplate = wrapFocusedTemplate.call(this, focusedTagBodyTemplate.call(this, selectedTagObj));
+      }
     } else {
       focusedTemplate = defaultContentTemplate.call(this);
     }
   } else {
+    // 首先在扁平列表中搜索路径
     for (i = 0; i < this.resolvedSpec.tags.length; i += 1) {
       selectedTagObj = this.resolvedSpec.tags[i];
       selectedPathObj = this.resolvedSpec.tags[i].paths.find((v) => `${v.elementId}` === focusElId);
@@ -92,6 +125,16 @@ export default function focusedEndpointTemplate() {
         break;
       }
     }
+
+    // 如果没找到，在层级分组中递归搜索路径
+    if (!selectedPathObj) {
+      const hierarchicalResult = this.findPathRecursively(this.resolvedSpec.tags || [], focusElId);
+      if (hierarchicalResult) {
+        selectedPathObj = hierarchicalResult.path;
+        selectedTagObj = hierarchicalResult.tag;
+      }
+    }
+
     if (selectedPathObj) {
       // In focused mode we must expand the nav-bar tag element if it is collapsed
       const newNavEl = this.shadowRoot.getElementById(`link-${focusElId}`);
